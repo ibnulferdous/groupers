@@ -27,7 +27,7 @@ model Collection {
   id       String    @id @default(auto()) @map("_id") @db.ObjectId
   title    String
   description     String
-  session   Session      @relation(fields: [shop], references: [shop])
+  session   Session      @relation(fields: [shop], references: [shop], onDelete: Cascade)
   shop   String    
   products Product[]
 }
@@ -36,6 +36,6 @@ model Product {
   id      String @id @default(auto()) @map("_id") @db.ObjectId
   title   String
   description   String
-  collection    Collection   @relation(fields: [collectionId], references: [id])
+  collection    Collection   @relation(fields: [collectionId], references: [id], onDelete: Cascade)
   collectionId  String @db.ObjectId
 }

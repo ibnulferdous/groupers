@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import {
   useActionData,
   useLoaderData,
@@ -18,14 +18,15 @@ import {
   Box,
   List,
   InlineStack,
-  EmptyState,
   IndexTable,
   Icon,
   ButtonGroup,
+  Tooltip,
 } from "@shopify/polaris";
-import { EditMajor, ViewMajor } from "@shopify/polaris-icons";
+import { EditMajor, ViewMajor, DeleteMajor } from "@shopify/polaris-icons";
 import { authenticate } from "../shopify.server";
 import db from "../db.server";
+import EmptyStateComponent from "../components/EmptyStateComponent";
 
 export const loader = async ({ request }) => {
   const { admin, session } = await authenticate.admin(request);
@@ -34,13 +35,32 @@ export const loader = async ({ request }) => {
     where: { shop: session.shop },
   });
 
-  // console.log("\n\n\n\n");
-  // console.log(`collections:`);
-  // console.log(collections);
-  // console.log("\n\n\n\n");
-
   return json(collections);
 };
+
+// Action function
+export async function action({ request, params }) {
+  const { session } = await authenticate.admin(request);
+  const { shop } = session;
+
+  /** @type {any} */
+  const data = {
+    ...Object.fromEntries(await request.formData()),
+  };
+
+  // console.log("\n\n\n\n");
+  // console.log(`Data is: `);
+  // console.log(data);
+  // console.log("\n\n\n\n");
+
+  const deleteCollection = await db.collection.delete({
+    where: {
+      id: data.id,
+    },
+  });
+
+  return redirect(`/app`);
+}
 
 // Make text shorter
 function truncate(str, { length = 25 } = {}) {
@@ -49,25 +69,8 @@ function truncate(str, { length = 25 } = {}) {
   return str.slice(0, length) + "…";
 }
 
-// Empty Collection Component
-const EmptyCollectionState = ({ onAction }) => (
-  <EmptyState
-    heading="Create Collection for your products"
-    action={{
-      content: "Create Collection",
-      onAction,
-    }}
-    image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
-  >
-    <p>
-      Group your products into collections to make it easier for customers to
-      find them by category
-    </p>
-  </EmptyState>
-);
-
 // Collections Table
-const CollectionTable = ({ collections }) => (
+const CollectionTable = ({ collections, handleDelete }) => (
   <IndexTable
     resourceName={{
       singular: "Collection",
@@ -77,18 +80,22 @@ const CollectionTable = ({ collections }) => (
     headings={[
       { title: "Title" },
       { title: "Description" },
-      { title: "Edit", hidden: true },
+      { title: "Action" },
     ]}
     selectable={false}
   >
     {collections.map((collection) => (
-      <CollectionTableRow key={collection.id} collection={collection} />
+      <CollectionTableRow
+        key={collection.id}
+        collection={collection}
+        handleDelete={handleDelete}
+      />
     ))}
   </IndexTable>
 );
 
 // Collection table row
-const CollectionTableRow = ({ collection }) => (
+const CollectionTableRow = ({ collection, handleDelete }) => (
   <IndexTable.Row id={collection.id} position={collection.id}>
     <IndexTable.Cell>
       <Link to={`collections/${collection.id}`}>
@@ -99,11 +106,24 @@ const CollectionTableRow = ({ collection }) => (
     <IndexTable.Cell>
       <ButtonGroup>
         <Link to={`collections/${collection.id}`}>
-          <Button icon={ViewMajor}></Button>
+          <Tooltip content="View" dismissOnMouseOut>
+            <Button icon={ViewMajor}></Button>
+          </Tooltip>
         </Link>
         <Link to={`collections/edit/${collection.id}`}>
-          <Button icon={EditMajor}></Button>
+          <Tooltip content="Edit" dismissOnMouseOut>
+            <Button icon={EditMajor}></Button>
+          </Tooltip>
         </Link>
+        <Tooltip content="Delete" dismissOnMouseOut>
+          <Button
+            variant="primary"
+            tone="critical"
+            destructive="true"
+            icon={DeleteMajor}
+            onClick={() => handleDelete(collection)}
+          ></Button>
+        </Tooltip>
       </ButtonGroup>
     </IndexTable.Cell>
   </IndexTable.Row>
@@ -112,8 +132,13 @@ const CollectionTableRow = ({ collection }) => (
 export default function Index() {
   const collections = useLoaderData();
   const navigate = useNavigate();
+  const submit = useSubmit();
 
-  // console.log(collections);
+  // Save form data
+  function handleDelete(data) {
+    submit(data, { method: "post" });
+    // console.log(data);
+  }
 
   return (
     <Page
@@ -127,11 +152,17 @@ export default function Index() {
         <Layout.Section>
           <Card padding="0">
             {collections.length === 0 ? (
-              <EmptyCollectionState
+              <EmptyStateComponent
+                heading="Create Collection for your products"
+                content="Create Collection"
                 onAction={() => navigate("/app/collections/new")}
+                text="Group your products into collections to make it easier for customers to find them by category"
               />
             ) : (
-              <CollectionTable collections={collections} />
+              <CollectionTable
+                collections={collections}
+                handleDelete={handleDelete}
+              />
             )}
           </Card>
         </Layout.Section>

@@ -2,7 +2,7 @@
 
 name = "groupers"
 client_id = "13906b00d187032833fe9eba361ab122"
-application_url = "https://q-hardwood-wagner-courts.trycloudflare.com"
+application_url = "https://jon-efficient-okay-astronomy.trycloudflare.com"
 embedded = true
 
 [access_scopes]
@@ -11,10 +11,10 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://q-hardwood-wagner-courts.trycloudflare.com/auth/callback",
-  "https://q-hardwood-wagner-courts.trycloudflare.com/auth/shopify/callback",
-  "https://q-hardwood-wagner-courts.trycloudflare.com/api/auth/callback",
-  "https://q-hardwood-wagner-courts.trycloudflare.com/.shopify/graphiql/auth/callback"
+  "https://jon-efficient-okay-astronomy.trycloudflare.com/auth/callback",
+  "https://jon-efficient-okay-astronomy.trycloudflare.com/auth/shopify/callback",
+  "https://jon-efficient-okay-astronomy.trycloudflare.com/api/auth/callback",
+  "https://jon-efficient-okay-astronomy.trycloudflare.com/.shopify/graphiql/auth/callback"
 ]
 
 [webhooks]

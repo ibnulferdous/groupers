@@ -1,4 +1,3 @@
-import { authenticate } from "../shopify.server";
 import { json, redirect } from "@remix-run/node";
 import db from "../db.server";
 import { Link, useLoaderData, useNavigate, useSubmit } from "@remix-run/react";
@@ -7,17 +6,16 @@ import {
   Button,
   ButtonGroup,
   Card,
-  EmptyState,
   IndexTable,
   Layout,
-  MediaCard,
   Page,
   Text,
+  Tooltip,
 } from "@shopify/polaris";
 import { EditMajor, ViewMajor, DeleteMajor } from "@shopify/polaris-icons";
+import EmptyStateComponent from "../components/EmptyStateComponent";
 
 export async function loader({ request, params }) {
-  //   const { admin } = await authenticate.admin(request);
   const collection = await db.collection.findUnique({
     where: { id: params.id },
     include: {
@@ -30,21 +28,12 @@ export async function loader({ request, params }) {
 
 // Action function
 export async function action({ request, params }) {
-  const { session } = await authenticate.admin(request);
-  const { shop } = session;
-
   /** @type {any} */
   const data = {
     ...Object.fromEntries(await request.formData()),
-    // collectionId: params.id,
   };
 
-  console.log("\n\n\n\n");
-  console.log(`Data is: `);
-  console.log(data);
-  console.log("\n\n\n\n");
-
-  const deleteUser = await db.product.delete({
+  await db.product.delete({
     where: {
       id: data.id,
     },
@@ -60,23 +49,6 @@ function truncate(str, { length = 25 } = {}) {
   return str.slice(0, length) + "…";
 }
 
-// Empty Collection Component
-const EmptyCollectionState = ({ onAction }) => (
-  <EmptyState
-    heading="Add products to your collection"
-    action={{
-      content: "Add Product",
-      onAction,
-    }}
-    image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
-  >
-    <p>
-      Bundle your products into collection to better manage your store and show
-      them on the website.
-    </p>
-  </EmptyState>
-);
-
 // Products Table
 const ProductTable = ({ products, handleDelete }) => (
   <>
@@ -89,7 +61,7 @@ const ProductTable = ({ products, handleDelete }) => (
       headings={[
         { title: "Title" },
         { title: "Description" },
-        { title: "Edit", hidden: true },
+        { title: "Action" },
       ]}
       selectable={false}
     >
@@ -118,20 +90,26 @@ const ProductTableRow = ({ product, handleDelete }) => (
       <IndexTable.Cell>
         <ButtonGroup>
           <Link to={`/app/collections/products/${product.id}`}>
-            <Button icon={ViewMajor}></Button>
+            <Tooltip content="View" dismissOnMouseOut>
+              <Button icon={ViewMajor}></Button>
+            </Tooltip>
           </Link>
 
           <Link to={`/app/collections/product/edit/${product.id}`}>
-            <Button icon={EditMajor}></Button>
+            <Tooltip content="Edit" dismissOnMouseOut>
+              <Button icon={EditMajor}></Button>
+            </Tooltip>
           </Link>
 
-          <Button
-            variant="primary"
-            tone="critical"
-            destructive="true"
-            icon={DeleteMajor}
-            onClick={() => handleDelete(product)}
-          ></Button>
+          <Tooltip content="Delete" dismissOnMouseOut>
+            <Button
+              variant="primary"
+              tone="critical"
+              destructive="true"
+              icon={DeleteMajor}
+              onClick={() => handleDelete(product)}
+            ></Button>
+          </Tooltip>
         </ButtonGroup>
       </IndexTable.Cell>
     </IndexTable.Row>
@@ -173,10 +151,13 @@ export default function CollectionDetailsPage() {
 
             <Card padding="0">
               {collection.products.length === 0 ? (
-                <EmptyCollectionState
+                <EmptyStateComponent
+                  heading="Add products to your collection"
+                  content="Add Product"
                   onAction={() =>
                     navigate(`/app/collections/product/new/${collection.id}`)
                   }
+                  text="Bundle your products into collection to better manage your store and show them on the website."
                 />
               ) : (
                 <ProductTable
