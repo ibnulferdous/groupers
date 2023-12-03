@@ -1,0 +1,28 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+name = "groupers"
+client_id = "13906b00d187032833fe9eba361ab122"
+application_url = "https://q-hardwood-wagner-courts.trycloudflare.com"
+embedded = true
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "write_products"
+
+[auth]
+redirect_urls = [
+  "https://q-hardwood-wagner-courts.trycloudflare.com/auth/callback",
+  "https://q-hardwood-wagner-courts.trycloudflare.com/auth/shopify/callback",
+  "https://q-hardwood-wagner-courts.trycloudflare.com/api/auth/callback",
+  "https://q-hardwood-wagner-courts.trycloudflare.com/.shopify/graphiql/auth/callback"
+]
+
+[webhooks]
+api_version = "2023-10"
+
+[pos]
+embedded = false
+
+[build]
+automatically_update_urls_on_dev = true
+dev_store_url = "tools-iot.myshopify.com"
