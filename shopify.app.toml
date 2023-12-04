@@ -2,7 +2,7 @@
 
 name = "groupers"
 client_id = "13906b00d187032833fe9eba361ab122"
-application_url = "https://jon-efficient-okay-astronomy.trycloudflare.com"
+application_url = "https://tie-goat-save-officials.trycloudflare.com"
 embedded = true
 
 [access_scopes]
@@ -11,10 +11,10 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://jon-efficient-okay-astronomy.trycloudflare.com/auth/callback",
-  "https://jon-efficient-okay-astronomy.trycloudflare.com/auth/shopify/callback",
-  "https://jon-efficient-okay-astronomy.trycloudflare.com/api/auth/callback",
-  "https://jon-efficient-okay-astronomy.trycloudflare.com/.shopify/graphiql/auth/callback"
+  "https://tie-goat-save-officials.trycloudflare.com/auth/callback",
+  "https://tie-goat-save-officials.trycloudflare.com/auth/shopify/callback",
+  "https://tie-goat-save-officials.trycloudflare.com/api/auth/callback",
+  "https://tie-goat-save-officials.trycloudflare.com/.shopify/graphiql/auth/callback"
 ]
 
 [webhooks]
